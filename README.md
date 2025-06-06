@@ -1,5 +1,5 @@
 # mpc-multisig
-💝 This project received a $5000 grant from the [DFINITY foundation](https://dfinity.org/grants).
+💝 This project received a $25,000 grant from the [DFINITY foundation](https://dfinity.org/grants).
 
 ## Overview
 
