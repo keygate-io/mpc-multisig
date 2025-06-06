@@ -1,4 +1,4 @@
-# Cerberus
+# Non-custodial Multisignature Wallet
 💝 This project received a $2500 grant from the [DFINITY foundation](https://dfinity.org/grants).
 
 ## Overview
