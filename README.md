@@ -1,101 +1,36 @@
 # mpc-multisig
 💝 This project received a $25,000 grant from the [DFINITY foundation](https://dfinity.org/grants).
 
-## Overview
+A multi-signature smart account built on the Internet Computer Protocol. Uses multi-party computation (MPC) for Ethereum transaction signing. Expandable to Bitcoin and Solana.
 
-```mermaid
-graph TD
-    A[User] -->|Authenticates| B[Internet Identity]
-    B -->|Returns Identity| A
-    
-    A -->|Creates Vault| C[Vaults Canister]
-    C -->|Stores Vault| D[Vault]
-    
-    A -->|Creates Wallet| D
-    D -->|Deploys| E[Wallet Canister]
-    
-    A -->|Interacts with Wallet| D
-    D -->|Signs Transactions| E
-    D -->|Sends Transaction| F[EVM RPC Canister]
-    F -->|Interacts with| G[Ethereum Network]
-    
-    D -->|Queries Balance| F
-    D -->|Queries Address| E
-```
+## Why is this needed?
 
-## Explanation
-## Components and Their Roles
+* There's currently no fully on-chain and self-custodial multisignature that supports all major blockchains.
+* Every multisignature platform has its own protocol and UX, so there's no unified user experience for all networks.
 
-### User
-- Represents the end-user interacting with the system.
-- Authenticates through Internet Identity to obtain an identity.
-- Creates Vaults and Wallets.
-- Interacts with Wallets to sign transactions, send transactions, query balances, and query addresses.
+Using threshold ECDSA, which ICP provides as a network primitive, creating a cross-chain Gnosis Safe equivalent is possible.
 
-### Internet Identity
-- Provides authentication services for the User.
-- Returns an identity to the User upon successful authentication.
+## How it works
+A database stores identifiers for users and vaults, and is in charge of deploying new vault smart accounts. Each wallet runs as its own contract with an isolated private key, so when you create a wallet, a new contract is deployed specifically for that wallet. These contracts then connect to EVM-based networks through the IC's EVM RPC canister to broadcast transactions and query blockchain data.
 
-### Vaults Canister
-- Stores and manages Vaults created by Users.
-- Provides functionality to create, retrieve, and update Vaults.
-
-### Vault
-- Represents a container for Wallets created by the User.
-- Deploys a Wallet Canister for each Wallet created within the Vault.
-- Stores and manages Wallets.
-
-### Wallet Canister
-- Represents a canister that is deployed for each Wallet created within a Vault.
-- Provides functionality for signing transactions and querying Wallet addresses.
-- Interacts with the Wallet to perform various operations.
-
-### EVM RPC Canister
-- Acts as an intermediary between the Wallets and the Ethereum Network.
-- Receives transaction requests from Wallets and forwards them to the Ethereum Network.
-- Handles balance queries from Wallets and retrieves the information from the Ethereum Network.
-- Returns the results of transactions and queries back to the Wallets.
-
-### Ethereum Network
-- Represents the external Ethereum blockchain network.
-- Receives transaction requests from the EVM RPC Canister and processes them.
-- Provides balance information to the EVM RPC Canister upon request.
-
-## Interactions
-
-1. The User authenticates through Internet Identity to obtain an identity.
-2. The User creates a Vault using the Vaults Canister, which stores the Vault.
-3. The User creates a Wallet within a Vault, triggering the deployment of a Wallet Canister.
-4. The User interacts with the Wallet to perform various operations:
-  - Signing transactions: The Wallet sends a request to the Wallet Canister to sign the transaction.
-  - Sending transactions: The Wallet sends the signed transaction to the EVM RPC Canister, which forwards it to the Ethereum Network for processing.
-  - Querying balances: The Wallet sends a balance query to the EVM RPC Canister, which retrieves the balance information from the Ethereum Network and returns it to the Wallet.
-  - Querying addresses: The Wallet sends an address query to the Wallet Canister, which returns the Wallet's address.
-
-The EVM RPC Canister acts as a bridge between the Wallets and the Ethereum Network, handling transaction requests, balance queries, and relaying the results back to the Wallets.
-
-This design allows Users to securely manage their Vaults and Wallets, interact with the Ethereum Network through the EVM RPC Canister, and perform various operations such as signing transactions, sending transactions, and querying balances and addresses.
+When a team approves a transaction, the backend constructs the unsigned transaction, sends it to the smart account for signing, which then broadcasts the signed transaction through the selected network's RPC. All of this happens on-chain within ICP.
 
 ## Installation
+
 ```bash
+# Install dependencies
 dfx deps pull
 dfx deps deploy evm_rpc
 dfx deps deploy internet_identity
-```
 
-## Starts the replica, running in the background
-```bash
+# Start local IC replica
 dfx start --background
-```
 
-## Deploys your canisters to the replica and generates your candid interface
-``` bash
+# Deploy the application
 dfx deploy
-```
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
-```bash
+# Generate frontend types
 npm run generate
 ```
 
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
+Your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
